@@ -1,5 +1,10 @@
 import tkinter as tk
 from PIL import Image, ImageTk
+import time
+
+MOVE_INCREMENT = 20
+MOVES_PER_SECOND = 5
+GAME_SPEED = 1000 // MOVES_PER_SECOND
 
 class Snake(tk.Canvas):
     def __init__(self):
@@ -14,6 +19,8 @@ class Snake(tk.Canvas):
         self.load_assets()
         # Create snake and food object
         self.create_objects()
+
+        self.after(75, self.perform_actions)
 
     def load_assets(self):
         try:
@@ -41,6 +48,19 @@ class Snake(tk.Canvas):
 
         # create game boundaries line
         self.create_rectangle(7, 27, 593,613, outline="#525d69")
+
+    def move_snake(self):
+        head_x_position, head_y_position = self.snake_positions[0]
+        new_head_position = (head_x_position + MOVE_INCREMENT, head_y_position)
+
+        self.snake_positions = [new_head_position] + self.snake_positions[:-1]
+
+        for segment, position in zip(self.find_withtag("snake"), self.snake_positions):
+            self.coords(segment, position)
+
+    def perform_actions(self):
+        self.move_snake()
+        self.after(GAME_SPEED, self.perform_actions)
             
 
 root = tk.Tk()
