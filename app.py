@@ -13,7 +13,9 @@ class Snake(tk.Canvas):
         # Initialise snake positions
         self.snake_positions = [(100,100), (80,100), (60,100)]
         self.food_position = (200, 100)
-        self.score =0
+        self.score = 0
+        self.direction = "Right"
+        self.bind_all("<Key>", self.on_key_press)
 
         # Load images for food and snake
         self.load_assets()
@@ -51,7 +53,16 @@ class Snake(tk.Canvas):
 
     def move_snake(self):
         head_x_position, head_y_position = self.snake_positions[0]
-        new_head_position = (head_x_position + MOVE_INCREMENT, head_y_position)
+
+        if self.direction == "Left":
+            new_head_position = (head_x_position - MOVE_INCREMENT, head_y_position)
+        elif self.direction == "Right":
+            new_head_position = (head_x_position + MOVE_INCREMENT, head_y_position)
+        elif self.direction == "Down":
+            new_head_position = (head_x_position , head_y_position + MOVE_INCREMENT)
+        elif self.direction == "Up":
+            new_head_position = (head_x_position , head_y_position - MOVE_INCREMENT)
+
 
         self.snake_positions = [new_head_position] + self.snake_positions[:-1]
 
@@ -72,6 +83,20 @@ class Snake(tk.Canvas):
             or head_y_position in (20,620)
             or (head_x_position, head_y_position) in self.snake_positions[1:]
         )
+
+    def on_key_press(self, e):
+        new_direction = e.keysym
+
+        all_directions = ("Up","Down","Right", "Left")
+        opposites = ({"Up", "Down"}, {"Right", "Left"})
+
+        if (
+            new_direction in all_directions 
+            and {new_direction, self.direction} not in opposites
+        ):
+            self.direction = new_direction
+
+
             
 
 root = tk.Tk()
