@@ -1,3 +1,4 @@
+from random import randint
 import tkinter as tk
 from PIL import Image, ImageTk
 import time
@@ -12,7 +13,7 @@ class Snake(tk.Canvas):
 
         # Initialise snake positions
         self.snake_positions = [(100,100), (80,100), (60,100)]
-        self.food_position = (200, 100)
+        self.food_position = self.set_new_food_position()
         self.score = 0
         self.direction = "Right"
         self.bind_all("<Key>", self.on_key_press)
@@ -107,8 +108,20 @@ class Snake(tk.Canvas):
                 *self.snake_positions[-1], image=self.snake_body, tag="snake"
             )
 
+            self.food_position = self.set_new_food_position()
+            self.coords(self.find_withtag("food"), self.food_position)
+
             score = self.find_withtag("score")
             self.itemconfigure(score, text=f"Score: {self.score}", tag="score")
+
+    def set_new_food_position(self):
+        while True:
+            x_position = randint(1,28) * MOVE_INCREMENT
+            y_position = randint(3,29) * MOVE_INCREMENT
+            food_position = (x_position, y_position)
+
+            if food_position not in self.snake_positions:
+                return food_position
 
 
             
