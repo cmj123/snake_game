@@ -4,8 +4,9 @@ from PIL import Image, ImageTk
 import time
 
 MOVE_INCREMENT = 20
-MOVES_PER_SECOND = 5
-GAME_SPEED = 1000 // MOVES_PER_SECOND
+move_per_second = 5
+speed_increment = 1
+GAME_SPEED = 1000 // move_per_second
 
 class Snake(tk.Canvas):
     def __init__(self):
@@ -16,14 +17,17 @@ class Snake(tk.Canvas):
         self.food_position = self.set_new_food_position()
         self.score = 0
         self.direction = "Right"
-        self.bind_all("<Key>", self.on_key_press)
+        
 
         # Load images for food and snake
         self.load_assets()
         # Create snake and food object
         self.create_objects()
 
-        self.after(75, self.perform_actions)
+        self.bind_all("<Key>", self.on_key_press)
+        self.pack()
+
+        self.after(GAME_SPEED,  self.perform_actions)
 
     def load_assets(self):
         try:
@@ -38,13 +42,18 @@ class Snake(tk.Canvas):
 
     def create_objects(self):
         # create score visual
-        self.create_text(
-            45,12,text=f"Score : {self.score}", tag="score", fill="#fff", font=("TkDefaultFont",14)
-        )
+        try:
+            self.create_text(
+                100,12,text=f"Score : {self.score} (speed: {move_per_second})", tag="score", fill="#fff", font=10
+            )
+        except:
+            pass
 
         # create snake visuals
         for x_position, y_position in self.snake_positions:
-            self.create_image(x_position, y_position, image=self.snake_body, tag='snake')
+            self.create_image(
+                    x_position, y_position, image=self.snake_body, tag='snake'
+                )
 
         # create food visual
         self.create_image(*self.food_position, image=self.food, tag='food')
@@ -105,6 +114,11 @@ class Snake(tk.Canvas):
             self.score += 1
             self.snake_positions.append(self.snake_positions[-1])
 
+            if self.score % speed_increment == 0:
+                global move_per_second
+                move_per_second += 1
+
+
             self.create_image(
                 *self.snake_positions[-1], image=self.snake_body, tag="snake"
             )
@@ -113,7 +127,11 @@ class Snake(tk.Canvas):
             self.coords(self.find_withtag("food"), self.food_position)
 
             score = self.find_withtag("score")
-            self.itemconfigure(score, text=f"Score: {self.score}", tag="score")
+            self.itemconfigure(
+                    score, 
+                    text=f"Score: {self.score} (speed: {move_per_second})", 
+                    tag="score"
+                )
 
     def set_new_food_position(self):
         while True:
@@ -141,6 +159,6 @@ root.resizable(False, False)
 
 # Create an instance of Snake
 board = Snake()
-board.pack()
+
 
 root.mainloop()
